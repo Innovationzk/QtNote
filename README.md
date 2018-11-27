@@ -1,6 +1,5 @@
 # QtNote
-____________________________________________________________________________
-
+_____________________________
 # 一、QML语法（QML Syntax）
 ```
 // import声明导入了一个指定的模块版本。一般来说会导入QtQuick2.0来作为初始元素的引用。
@@ -128,4 +127,39 @@ ______________________________________________
 _________________________________________________
 
 # 五、定位元素（Positioning Element）
-有一些QML元素被用于放置元素对象，它们被称作定位器，QtQuick模块提供了Row，Column，Grid，Flow用来作为定位器。你可以在下面的插图中看到它们使用相同内容的显示效果。
+QtQuick模块提供了Row，Column，Grid，Flow用来作为定位器。
+- **Column**: colomn（列）元素将它的子对象通过顶部对齐的列方式进行排列。spacing属性用来设置每个元素之间的间隔大小。
+- **Row**：row（行）元素将它的子对象从左到右，或者从右到左依次排列，排列方式取决于layoutDirection属性。spacing属性用来设置每个元素之间的间隔大小。
+- **Grid**：grid（栅格）元素通过设置rows（行数）和columns（列数）将子对象排列在一个栅格中。可以只限制行数或者列数。
+- **Flow**：flow（流）通过flow属性和layoutDirection（布局方向）属性来控制流的方向。它能够从头到底的横向布局，也可以从左到右或者从右到左进行布局。为了让一个流可以工作，必须指定一个宽度或者高度，可以通过属性直接设定，或者通过anchor（锚定）布局设置。
+- **Repeater**：通常Repeater（重复元素）与定位器一起使用。它的工作方式就像for循环与迭代器的模式一样。下面是一个简单的例子：
+```
+Grid{
+    anchors.fill: parent
+    anchors.margins: 8
+    spacing: 4
+    Repeater {
+        model: 16
+        Rectangle {
+            width: 56; height: 56
+            property int colorIndex: Math.floor(Math.random()*3)
+            color: root.colorArray[colorIndex]
+            border.color: Qt.lighter(color)
+            Text {
+                anchors.centerIn: parent
+                color: "#f0f0f0"
+                text: "Cell " + index
+            }
+        }
+    }
+}
+```
+
+# 布局元素（Layout Items）
+QML使用anchors（锚）对元素进行布局。anchoring（锚定）是基础元素对象的基本属性，可以被所有的可视化QML元素使用。一个anchors（锚）就像一个协议，并且比几何变化更加强大。Anchors（锚）是相对关系的表达式，你通常需要与其它元素搭配使用。
+
+一个元素有6条锚定线（top顶，bottom底，left左，right右，horizontalCenter水平中，verticalCenter垂直中）。在文本元素（Text Element）中有一条文本的锚定基线（baseline）。每一条锚定线都有一个偏移（offset）值，在top（顶），bottom（底），left（左），right（右）的锚定线中它们也被称作边距。对于horizontalCenter（水平中）与verticalCenter（垂直中）与baseline（文本基线）中被称作偏移值。
+
+# 输入元素（Input Element）
+## 文本输入（TextInput）
+文本输入允许用户输入一行文本。这个元素支持使用正则表达式验证器来限制输入和输入掩码的模式设置。
