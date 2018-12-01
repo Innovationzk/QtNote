@@ -1,4 +1,4 @@
-# QtNote
+# QML快速入门（Quick Starter）
 _____________________________
 # 一、QML语法（QML Syntax）
 ```
@@ -163,3 +163,32 @@ QML使用anchors（锚）对元素进行布局。anchoring（锚定）是基础�
 # 输入元素（Input Element）
 ## 文本输入（TextInput）
 文本输入允许用户输入一行文本。这个元素支持使用正则表达式验证器来限制输入和输入掩码的模式设置。
+## 焦点区域（FocusScope）
+一个焦点区域（focus scope）定义了如果焦点区域接收到焦点，它的最后一个使用focus:true的子元素接收焦点，它将会把焦点传递给最后申请焦点的子元素。
+## 文本编辑（TextEdit）
+文本编辑（TextEdit）元素与文本输入（TextInput）非常类似，它支持多行文本编辑。它不再支持文本输入的限制，但是提供了已绘制文本的大小查询（paintedHeight，paintedWidth）。
+## 按键元素（Key Element）
+附加属性key允许你基于某个按键的点击来执行代码。例如使用up，down按键来移动一个方块，left，right按键来旋转一个元素，plus，minus按键来缩放一个元素。
+_______________________
+
+# 动态元素（Fluid Elements）
+
+# 动画（Animations）
+动画被用于属性的改变。一个动画定义了属性值改变的曲线，将一个属性值变化从一个值过渡到另一个值。动画是由一连串的目标属性活动定义的，平缓的曲线算法能够引发一个定义时间内属性的持续变化。所有在QtQuick中的动画都由同一个计时器来控制，因此它们始终都保持同步，这也提高了动画的性能和显示效果。
+## 动画元素（Animation Elements）
+常用的动画有：
+- PropertyAnimation（属性动画）- 使用属性值改变播放的动画
+- NumberAnimation（数字动画）- 使用数字改变播放的动画
+- ColorAnimation（颜色动画）- 使用颜色改变播放的动画
+- RotationAnimation（旋转动画）- 使用旋转改变播放的动画
+
+QtQuick还提供了一切特殊场景下使用的动画：
+- PauseAnimation（停止动画）- 运行暂停一个动画
+- SequentialAnimation（顺序动画）- 允许动画有序播放
+- ParallelAnimation（并行动画）- 允许动画同时播放
+- AnchorAnimation（锚定动画）- 使用锚定改变播放的动画
+- ParentAnimation（父元素动画）- 使用父对象改变播放的动画
+- SmotthedAnimation（平滑动画）- 跟踪一个平滑值播放的动画
+- SpringAnimation（弹簧动画）- 跟踪一个弹簧变换的值播放的动画
+- PathAnimation（路径动画）- 跟踪一个元素对象的路径的动画
+- Vector3dAnimation（3D容器动画）- 使用QVector3d值改变播放的动画
