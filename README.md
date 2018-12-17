@@ -192,3 +192,82 @@ QtQuick还提供了一切特殊场景下使用的动画：
 - SpringAnimation（弹簧动画）- 跟踪一个弹簧变换的值播放的动画
 - PathAnimation（路径动画）- 跟踪一个元素对象的路径的动画
 - Vector3dAnimation（3D容器动画）- 使用QVector3d值改变播放的动画
+
+## 应用动画（Applying Animations）
+动画可以通过以下几种方式来应用：
+- 属性动画 - 在元素完整加载后自动运行
+- 属性动作 - 当属性值改变时自动运行
+- 独立运行动画 - 使用start()函数明确指定运行或者running属性被设置为true（比如通过属性绑定）
+
+## 缓冲曲线（Easing Curves）
+属性值的改变能够通过一个动画来控制，缓冲曲线属性影响了一个属性值改变的插值算法。动画的默认缓冲类型是Easing.Linear。使用easing.type来改变缓冲类型。比如easing.type: Easing.OutCirc。
+
+## 动画分组（Grouped Animations）
+可以将SequentialAnimation（连续动画）和ParallelAnimation（平行动画）作为动画的容器来包含其它的动画元素。
+
+# 状态与过渡（States and Transitions）
+通常我们将用户界面描述为一种状态。一个状态定义了一组属性的改变，并且会在一定的条件下被触发。另外在这些状态转化的过程中可以有一个过渡(transition)，定义了这些属性的动画或者一些附加的动作。当进入一个新的状态时，动作也可以被执行。
+示例代码：
+```
+Item{
+    id: root
+    width: 150
+    height: 250
+    Rectangle {
+        id: light1
+        x: 25; y: 15
+        width: 100; height: width
+        scale: 1
+        radius: width/2
+        color: "black"
+    }
+    Rectangle {
+        id: light2
+        x: 25; y: 135
+        width: 100; height: width
+        scale: 0
+        radius: width/2
+        color: "black"
+    }
+    state: "stop"    //state默认为空字符串，即 state: ""
+    states: [
+        State {
+            name: "stop"
+            PropertyChanges { target: light1; scale: 1; color: "red" }
+            PropertyChanges { target: light2; scale: 0; color: "black" }
+        },
+        State {
+            name: "go"
+            PropertyChanges { target: light1; scale: 0; color: "black" }
+            PropertyChanges { target: light2; scale: 1; color: "green" }
+        }
+    ]
+    transitions: [
+        Transition {
+            from: "stop"
+            to: "go"
+            PropertyAnimation { target: light1; properties: "scale,color"; duration: 500; }
+            PropertyAnimation { target: light2; properties: "scale,color"; duration: 500 }
+        },
+        Transition {
+            from: "go"
+            to: "stop"
+            PropertyAnimation { target: light1; properties: "scale,color"; duration: 500 }
+            PropertyAnimation { target: light2; properties: "scale,color"; duration: 500 }
+        }
+    ]
+    MouseArea {
+        anchors.fill: parent
+        onClicked: parent.state = (parent.state == "stop"? "go" : "stop")
+    }
+}
+```
+## 状态（States）
+在QML中，使用State元素来定义状态，需要与基础元素对象（Item）的states序列属性连接。状态通过它的状态名来鉴别，由组成它的一系列简单的属性来改变元素。默认的状态在初始化元素属性时定义，并命名为“”（一个空的字符串）。
+
+在一个状态中，只需要描述属性如何从它们的默认状态改变（而不是前一个状态的改变）。
+## 过渡（Transitions）
+任何元素都可以加入一系列过渡，一个过渡由状态的改变触发执行。你可以使用属性的from:和to:来定义状态改变的指定过渡。这两个属性就像一个过滤器，当过滤器为true时，过渡生效。你也可以使用“”来表示任何状态。例如from:""; to:"*"表示从任一状态到另一个任一状态的默认值，这意味着过渡用于每个状态的切换。
+
+# 模型-视图-代理（Model-View-Delegate）
+在QtQuick中，数据通过model-view（模型-视图）分离。对于每个view（视图），每个数据元素的可视化都分给一个代理（delegate）。
