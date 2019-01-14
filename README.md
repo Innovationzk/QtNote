@@ -277,3 +277,179 @@ ______________________________
 
 # 基础模型（Basic Model）
 repeater元素用于实现子元素的标号。每个子元素都拥有一个可以访问的属性index，用于区分不同的子元素。
+示例代码:
+```
+Item {
+    id: root
+    width: 120
+    height: childrenRect.height+20
+    Column{
+        spacing: 10
+        anchors.centerIn: parent
+        Repeater{
+            model: ListModel{
+                ListElement{ name: "rec"; m_color: "red" }
+                ListElement{ name: "rec"; m_color: "blue" }
+                ListElement{ name: "rec"; m_color: "green" }
+                ListElement{ name: "rec"; m_color: "orange" }
+            }
+            Rectangle{   //同 delegate: Rectangle
+                width: 100
+                height: 35
+                radius: 5
+                color: "lightBlue"
+                border.width: 1
+                border.color: "lightGreen"
+                Rectangle{
+                    id: circle
+                    width: 15; height: 15
+                    radius: 7.5
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.margins: 5
+                    color: m_color
+                }
+                Text{
+                    anchors.centerIn: parent
+                    text: name + index
+                }
+            }
+        }
+    }
+}
+```
+# 动态视图（Dynamic Views）
+Repeater元素适合有限的静态数据，但是在真正使用时，模型通常更加复杂和庞大，QtQuick提供了ListView和GridView元素，这两个都是基于Flickable（可滑动）区域的元素，因此用户可以放入更大的数据。同时，它们限制了同时实例化的代理数量。对于一个大型的模型，这意味着在同一个场景下只会加载有限的元素。
+示例代码:
+```
+Rectangle {
+    width: 80
+    height: 300
+    color: "white"
+    ListView {
+        anchors.fill: parent
+        anchors.margins: 10
+        clip: true
+        model: ["aa","vv","json","xml","afg","json","xml","afg"]
+        delegate: numberDelegate
+        spacing: 5
+    }
+    Component {
+        id: numberDelegate
+        Rectangle {
+            width: 60
+            height: 40
+            color: "lightGreen"
+            Text {
+                anchors.centerIn: parent
+                font.pixelSize: 16
+                text: index + modelData
+            }
+        }
+    }
+}
+```
+## 代理(Delegate)
+当使用模型与视图来自定义用户界面时，代理在创建显示时扮演了大量的角色。在模型中的每个元素通过代理来实现可视化，用户真实可见的是这些代理元素。
+
+每个代理访问到索引号或者绑定的属性，一些是来自数据模型，一些来自视图。来自模型的数据将会通过属性传递到代理。来自视图的数据将会通过属性传递视图中与代理相关的状态信息。
+
+通常使用的视图绑定属性是ListView.isCurrentItem和ListView.view。
+```
+Rectangle {
+    width: 80
+    height: 300
+    color: "white"
+    ListView {
+        anchors.fill: parent
+        anchors.margins: 10
+        clip: true
+        model: 20
+        delegate: numberDelegate
+        spacing: 5
+    }
+    Component {
+        id: numberDelegate
+        Rectangle {
+            width: 80
+            height: 50
+            color: ListView.isCurrentItem ? "#00bfff" : "lightGray"
+            }
+            Text {
+                anchors.centerIn: parent
+                font.pixelSize: 40
+                text: index
+            }
+        }
+    }
+}
+```
+## 动画添加与移除元素（Animating Added and Removed Items）
+```
+Item{
+    id: root
+    width: 480
+    height: 300
+    Rectangle{
+        height: 40
+        anchors.left: root.left
+        anchors.right: root.right
+        anchors.bottom: root.bottom
+        anchors.margins: 20
+        color: "darkGreen"
+        Text{
+            text: "Add Item"
+            color: "white"
+            anchors.centerIn: parent
+        }
+        MouseArea{
+            anchors.fill: parent
+            onClicked: theModel.append({ name: "Item"+ ++parent.count })
+        }
+        property int count: 2
+    }
+    GridView{
+        anchors.fill: parent
+        anchors.margins: 20
+        anchors.bottomMargin: 80
+        clip: true
+        cellWidth: 60
+        cellHeight: 60
+        model: ListModel{
+            id: theModel
+            ListElement{ name: "Item1" }
+            ListElement{ name: "Item2" }
+        }
+        delegate: dele
+    }
+    Component{
+        id: dele
+        Rectangle{
+            id: rect
+            width: 50
+            height: 50
+            color: "lightGreen"
+            Text{
+                text: name
+                anchors.centerIn: parent
+            }
+            MouseArea{
+                anchors.fill: parent
+                onClicked: theModel.remove(index)
+            }
+            GridView.onAdd: NumberAnimation{
+                target: rect
+                property: "scale"
+                from: 0
+                to: 1
+            }
+            GridView.onRemove: SequentialAnimation {
+                PropertyAction { target: rect; property: "GridView.delayRemove"; value: true }  //需添加此句,否则无法添加动画
+                NumberAnimation { target: rect; property: "scale"; to: 0; duration: 250; easing.type: Easing.InOutQuad }
+                PropertyAction { target: rect; property: "GridView.delayRemove"; value: false }
+            }
+        }
+    }
+}
+```
+## 形变的代理（Shape-Shifting Delegates）
